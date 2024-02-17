@@ -4,6 +4,7 @@ from utils.constant import INPUT_OPTION, METHOD
 from utils.function import clean_text
 from utils.VIGNERE_CIPHER.service import extend_key_vignere, encrypt_vignere, decrypt_vignere
 from utils.AUTO_KEY_VIGNERE_CIPHER.service import extend_key_auto_key_vignere, encrypt_auto_key_vignere, decrypt_auto_key_vignere
+from utils.PLAYFAIR_CIPHER.service import generate_matrix_key, prepare_text, encrypt_playfair, decrypt_playfair
 app = Flask(__name__)
 CORS(app)
 
@@ -20,6 +21,12 @@ def encrypt():
   elif data['method'] == METHOD['AUTO_KEY_VIGNERE_CIPHER']:
     data['key'] = extend_key_auto_key_vignere(data['key'], data['inputText'])
     data['result'] = encrypt_auto_key_vignere(data['inputText'], data['key'])
+  elif data['method'] == METHOD['EXTENDED_VIGNERE_CIPHER']:
+    pass
+  elif data['method'] == METHOD['PLAYFAIR_CIPHER']:
+    data['key'] = generate_matrix_key(data['key'])
+    data['inputText'] = prepare_text(data['inputText'])
+    data['result'] = encrypt_playfair(data['inputText'], data['key'])
   
   return jsonify(data)
 
@@ -36,6 +43,12 @@ def decrypt():
   elif data['method'] == METHOD['AUTO_KEY_VIGNERE_CIPHER']:
     data['key'] = extend_key_auto_key_vignere(data['key'], data['inputText'])
     data['result'] = decrypt_auto_key_vignere(data['inputText'], data['key'])
+  elif data['method'] == METHOD['EXTENDED_VIGNERE_CIPHER']:
+    pass
+  elif data['method'] == METHOD['PLAYFAIR_CIPHER']:
+    data['key'] = generate_matrix_key(data['key'])
+    data['inputText'] = prepare_text(data['inputText'])
+    data['result'] = decrypt_playfair(data['inputText'], data['key'])
   
   return jsonify(data)
 
