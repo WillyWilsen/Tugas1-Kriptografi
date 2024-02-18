@@ -10,6 +10,7 @@ import {
   Alert,
   AlertIcon,
   Input,
+  Spinner,
 } from '@chakra-ui/react'
 import { INPUT_OPTION, METHOD } from '../utils/constant';
 import axios, { AxiosError } from 'axios';
@@ -26,10 +27,12 @@ export const Home = () => {
   const [keyMatrixValue, setKeyMatrixValue] = useState<string[][]>([]);
   const [errorText, setErrorText] = useState<string>('');
   const [result, setResult] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
 
   const encrypt = async () => {
     setErrorText('');
     setResult('');
+    setLoading(true);
     let response;
 
     try {
@@ -211,11 +214,15 @@ export const Home = () => {
       }
     } catch (e) {
       setErrorText((e as AxiosError).message);
+    } finally {
+      setLoading(false);
     }
   }
 
   const decrypt = async () => {
     setErrorText('');
+    setResult('');
+    setLoading(true);
     let response;
 
     try {
@@ -397,6 +404,8 @@ export const Home = () => {
       }
     } catch (e) {
       setErrorText((e as AxiosError).message);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -489,8 +498,8 @@ export const Home = () => {
           )}
         </FormControl>
         <FormControl mt="2">
-          <FormLabel>Result</FormLabel>
-          <Textarea borderWidth="1px" borderColor="gray" placeholder="Result" color="gray" size="sm" rows={5} value={result} readOnly />
+          <FormLabel>Result {loading && <Spinner color="green.500" />}</FormLabel>
+          <Textarea borderWidth="1px" borderColor="gray" color="gray" size="sm" rows={5} value={result} readOnly />
         </FormControl>
         <FormControl mt="2">
           <Button colorScheme="green" size="md" mx="1" onClick={downloadResult}>Download Result</Button>
