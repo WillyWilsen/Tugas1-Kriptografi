@@ -18,6 +18,8 @@ export const Home = () => {
   const [inputText, setInputText] = useState<string>('');
   const [method, setMethod] = useState<string>(METHOD.VIGNERE_CIPHER);
   const [key, setKey] = useState<string>('');
+  const [keyM, setKeyM] = useState<string>('');
+  const [keyB, setKeyB] = useState<string>('');
   const [errorText, setErrorText] = useState<string>('');
   const [result, setResult] = useState<string>('');
 
@@ -33,19 +35,49 @@ export const Home = () => {
           return;
         }
 
-        if (key === '') {
-          setErrorText('Key cannot be empty');
-          return;
+        if (method === METHOD.AFFINE_CIPHER) {
+          if (keyM === '') {
+            setErrorText('Key M cannot be empty');
+            return;
+          } else if (isNaN(parseInt(keyM))) {
+            setErrorText('Key M must be an integer');
+            return;
+          } else if (parseInt(keyM) % 2 === 0 || parseInt(keyM) % 13 === 0) {
+            setErrorText('Key M must be relative prime with 26');
+            return;
+          }
+
+          if (keyB === '') {
+            setErrorText('Key B cannot be empty');
+            return;
+          } else if (isNaN(parseInt(keyB))) {
+            setErrorText('Key B must be an integer');
+            return;
+          }
+
+          const response = await axios.post(`${import.meta.env.VITE_API_URL}/encrypt`, {
+            inputOption,
+            inputText,
+            method,
+            keyM: parseInt(keyM),
+            keyB: parseInt(keyB),
+          });
+          setResult(response.data.result);
+        } else {
+          if (key === '') {
+            setErrorText('Key cannot be empty');
+            return;
+          }
+
+          const response = await axios.post(`${import.meta.env.VITE_API_URL}/encrypt`, {
+            inputOption,
+            inputText,
+            method,
+            key,
+          });
+          setResult(response.data.result);
         }
       }
-
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/encrypt`, {
-        inputOption,
-        inputText,
-        method,
-        key,
-      });
-      setResult(response.data.result);
     } catch (e) {
       setErrorText((e as Error).message);
     }
@@ -63,19 +95,49 @@ export const Home = () => {
           return;
         }
 
-        if (key === '') {
-          setErrorText('Key cannot be empty');
-          return;
+        if (method === METHOD.AFFINE_CIPHER) {
+          if (keyM === '') {
+            setErrorText('Key M cannot be empty');
+            return;
+          } else if (isNaN(parseInt(keyM))) {
+            setErrorText('Key M must be an integer');
+            return;
+          } else if (parseInt(keyM) % 2 === 0 || parseInt(keyM) % 13 === 0) {
+            setErrorText('Key M must be relative prime with 26');
+            return;
+          }
+
+          if (keyB === '') {
+            setErrorText('Key B cannot be empty');
+            return;
+          } else if (isNaN(parseInt(keyB))) {
+            setErrorText('Key B must be an integer');
+            return;
+          }
+
+          const response = await axios.post(`${import.meta.env.VITE_API_URL}/decrypt`, {
+            inputOption,
+            inputText,
+            method,
+            keyM: parseInt(keyM),
+            keyB: parseInt(keyB),
+          });
+          setResult(response.data.result);
+        } else {
+          if (key === '') {
+            setErrorText('Key cannot be empty');
+            return;
+          }
+
+          const response = await axios.post(`${import.meta.env.VITE_API_URL}/decrypt`, {
+            inputOption,
+            inputText,
+            method,
+            key,
+          });
+          setResult(response.data.result);
         }
       }
-
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/decrypt`, {
-        inputOption,
-        inputText,
-        method,
-        key,
-      });
-      setResult(response.data.result);
     } catch (e) {
       setErrorText((e as Error).message);
     }
@@ -113,7 +175,13 @@ export const Home = () => {
         </FormControl>
         <FormControl mt="2">
           <FormLabel>Key</FormLabel>
-          <Textarea borderWidth="1px" borderColor="black" placeholder="Input key" size="sm" rows={1} onChange={e => setKey(e.target.value)} />
+          {method !== METHOD.AFFINE_CIPHER && <Textarea borderWidth="1px" borderColor="black" placeholder="Input key" size="sm" rows={1} onChange={e => setKey(e.target.value)} />}
+          {method === METHOD.AFFINE_CIPHER && (
+            <>
+              <Textarea borderWidth="1px" borderColor="black" placeholder="Input key m" size="sm" rows={1} onChange={e => setKeyM(e.target.value)} />
+              <Textarea borderWidth="1px" borderColor="black" placeholder="Input key b" size="sm" rows={1} onChange={e => setKeyB(e.target.value)} />
+            </>
+          )}
         </FormControl>
         <FormControl mt="2">
           <Button colorScheme="green" size="md" mx="1" onClick={encrypt}>Encrypt</Button>
