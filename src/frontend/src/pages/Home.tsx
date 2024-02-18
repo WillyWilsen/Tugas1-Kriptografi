@@ -9,9 +9,10 @@ import {
   Button,
   Alert,
   AlertIcon,
+  Input,
 } from '@chakra-ui/react'
 import { INPUT_OPTION, METHOD } from '../utils/constant';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 export const Home = () => {
   const [inputOption, setInputOption] = useState<string>(INPUT_OPTION.TEXT);
@@ -20,11 +21,14 @@ export const Home = () => {
   const [key, setKey] = useState<string>('');
   const [keyM, setKeyM] = useState<string>('');
   const [keyB, setKeyB] = useState<string>('');
+  const [keyMatrixSize, setKeyMatrixSize] = useState<string>('');
+  const [keyMatrixValue, setKeyMatrixValue] = useState<string[][]>([]);
   const [errorText, setErrorText] = useState<string>('');
   const [result, setResult] = useState<string>('');
 
   const encrypt = async () => {
     setErrorText('');
+    let response;
 
     try {
       if (inputOption === INPUT_OPTION.FILE) {
@@ -55,36 +59,68 @@ export const Home = () => {
             return;
           }
 
-          const response = await axios.post(`${import.meta.env.VITE_API_URL}/encrypt`, {
+          response = await axios.post(`${import.meta.env.VITE_API_URL}/encrypt`, {
             inputOption,
             inputText,
             method,
             keyM: parseInt(keyM),
             keyB: parseInt(keyB),
           });
-          setResult(response.data.result);
+        } else if (method === METHOD.HILL_CIPHER) {
+          if (keyMatrixSize === '') {
+            setErrorText('Key matrix size cannot be empty');
+            return;
+          } else if (isNaN(parseInt(keyMatrixSize))) {
+            setErrorText('Key matrix size must be an integer');
+            return;
+          }
+
+          for (let i = 0; i < parseInt(keyMatrixSize); i++) {
+            for (let j = 0; j < parseInt(keyMatrixSize); j++) {
+              if (keyMatrixValue[i][j] === '') {
+                setErrorText('Key matrix value cannot be empty');
+                return;
+              } else if (isNaN(parseInt(keyMatrixValue[i][j]))) {
+                setErrorText('Key matrix value must be an integer');
+                return;
+              }
+            }
+          }
+
+          response = await axios.post(`${import.meta.env.VITE_API_URL}/encrypt`, {
+            inputOption,
+            inputText,
+            method,
+            keyMatrixSize: parseInt(keyMatrixSize),
+            keyMatrixValue,
+          });
         } else {
           if (key === '') {
             setErrorText('Key cannot be empty');
             return;
           }
 
-          const response = await axios.post(`${import.meta.env.VITE_API_URL}/encrypt`, {
+          response = await axios.post(`${import.meta.env.VITE_API_URL}/encrypt`, {
             inputOption,
             inputText,
             method,
             key,
           });
+        }
+        if (response.data.result) {
           setResult(response.data.result);
+        } else {
+          setErrorText(response.data.error);
         }
       }
     } catch (e) {
-      setErrorText((e as Error).message);
+      setErrorText((e as AxiosError).message);
     }
   }
 
   const decrypt = async () => {
     setErrorText('');
+    let response;
 
     try {
       if (inputOption === INPUT_OPTION.FILE) {
@@ -115,31 +151,62 @@ export const Home = () => {
             return;
           }
 
-          const response = await axios.post(`${import.meta.env.VITE_API_URL}/decrypt`, {
+          response = await axios.post(`${import.meta.env.VITE_API_URL}/decrypt`, {
             inputOption,
             inputText,
             method,
             keyM: parseInt(keyM),
             keyB: parseInt(keyB),
           });
-          setResult(response.data.result);
+        } else if (method === METHOD.HILL_CIPHER) {
+          if (keyMatrixSize === '') {
+            setErrorText('Key matrix size cannot be empty');
+            return;
+          } else if (isNaN(parseInt(keyMatrixSize))) {
+            setErrorText('Key matrix size must be an integer');
+            return;
+          }
+
+          for (let i = 0; i < parseInt(keyMatrixSize); i++) {
+            for (let j = 0; j < parseInt(keyMatrixSize); j++) {
+              if (keyMatrixValue[i][j] === '') {
+                setErrorText('Key matrix value cannot be empty');
+                return;
+              } else if (isNaN(parseInt(keyMatrixValue[i][j]))) {
+                setErrorText('Key matrix value must be an integer');
+                return;
+              }
+            }
+          }
+
+          response = await axios.post(`${import.meta.env.VITE_API_URL}/decrypt`, {
+            inputOption,
+            inputText,
+            method,
+            keyMatrixSize: parseInt(keyMatrixSize),
+            keyMatrixValue,
+          });
         } else {
           if (key === '') {
             setErrorText('Key cannot be empty');
             return;
           }
 
-          const response = await axios.post(`${import.meta.env.VITE_API_URL}/decrypt`, {
+          response = await axios.post(`${import.meta.env.VITE_API_URL}/decrypt`, {
             inputOption,
             inputText,
             method,
             key,
           });
+        }
+        if (response.data.result) {
           setResult(response.data.result);
+        } else {
+          setErrorText(response.data.error);
         }
       }
     } catch (e) {
-      setErrorText((e as Error).message);
+      setErrorText((e as AxiosError).message);
     }
   }
 
@@ -175,11 +242,36 @@ export const Home = () => {
         </FormControl>
         <FormControl mt="2">
           <FormLabel>Key</FormLabel>
-          {method !== METHOD.AFFINE_CIPHER && <Textarea borderWidth="1px" borderColor="black" placeholder="Input key" size="sm" rows={1} onChange={e => setKey(e.target.value)} />}
+          {method !== METHOD.AFFINE_CIPHER && method !== METHOD.HILL_CIPHER && <Textarea borderWidth="1px" borderColor="black" placeholder="Input key" size="sm" rows={1} onChange={e => setKey(e.target.value)} />}
           {method === METHOD.AFFINE_CIPHER && (
             <>
               <Textarea borderWidth="1px" borderColor="black" placeholder="Input key m" size="sm" rows={1} onChange={e => setKeyM(e.target.value)} />
               <Textarea borderWidth="1px" borderColor="black" placeholder="Input key b" size="sm" rows={1} onChange={e => setKeyB(e.target.value)} />
+            </>
+          )}
+          {method === METHOD.HILL_CIPHER && (
+            <>
+              <Textarea borderWidth="1px" borderColor="black" placeholder="Input key matrix size" size="sm" rows={1} onChange={e => {
+                setKeyMatrixSize(e.target.value)
+                if (!isNaN(parseInt(e.target.value)) && parseInt(e.target.value) > 0) {
+                  setKeyMatrixValue(new Array(parseInt(e.target.value)).fill(new Array(parseInt(e.target.value)).fill('')))
+                } else {
+                  setKeyMatrixValue([])
+                }
+              }} />
+              <Box mt="4">
+                {keyMatrixValue.map((row, i) => (
+                  <Box key={i} display="flex" flexDirection="row">
+                    {row.map((_, j) => (
+                      <Input key={j} borderWidth="1px" borderColor="black" size="sm" onChange={e => {
+                        const newMatrix = keyMatrixValue.map(row => [...row]);
+                        newMatrix[i][j] = e.target.value
+                        setKeyMatrixValue(newMatrix)
+                      }} />
+                    ))}
+                  </Box>
+                ))}
+              </Box>
             </>
           )}
         </FormControl>
