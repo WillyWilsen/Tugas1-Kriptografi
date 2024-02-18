@@ -1,3 +1,5 @@
+from ..VIGNERE_CIPHER.service import encrypt_vignere, decrypt_vignere
+
 # Function for key length and text length are equal but the key is followed by the text
 def extend_key_auto_key_vignere(key, text):
   extended_key = key + text
@@ -5,14 +7,8 @@ def extend_key_auto_key_vignere(key, text):
 
 # Encrypt text using Auto Key Vignere Cipher
 def encrypt_auto_key_vignere(text, key):
-  encrypted_text = ""
-  for i in range(len(text)):
-    encrypted_text += chr((ord(text[i]) + ord(key[i])) % 26 + 65)
-  return encrypted_text
+  return encrypt_vignere(text, key)
 
 # Decrypt text using Auto Key Vignere Cipher
 def decrypt_auto_key_vignere(text, key):
-  decrypted_text = ""
-  for i in range(len(text)):
-    decrypted_text += chr((ord(text[i]) - ord(key[i]) + 26) % 26 + 65)
-  return decrypted_text
+  return decrypt_vignere(text, key)

@@ -9,6 +9,7 @@ from utils.EXTENDED_VIGNERE_CIPHER.service import encrypt_bytes_extended_vigener
 from utils.PLAYFAIR_CIPHER.service import generate_matrix_key, prepare_text, encrypt_playfair, decrypt_playfair
 from utils.AFFINE_CIPHER.service import encrypt_affine, decrypt_affine
 from utils.HILL_CIPHER.service import convert_matrix_to_int, add_z_to_text, determinant_matrix, encrypt_hill, decrypt_hill
+from utils.SUPER_ENKRIPSI.service import is_valid_key_transposition, encrypt_bytes_super_encryption, decrypt_bytes_super_encryption
 
 app = Flask(__name__)
 CORS(app)
@@ -20,12 +21,14 @@ def encrypt():
     if request.form:
       data = request.form.to_dict()
       file = request.files['inputFile']
-      file_name = '[ENCRYPTED] ' + file.filename
+      file_name = file.filename
       file_bytes = file.read()
       if data['method'] == METHOD['EXTENDED_VIGNERE_CIPHER']:
         data['inputText'] = file_bytes
       elif data['method'] == METHOD['HILL_CIPHER']:
         data['keyMatrixValue'] = json.loads(data['keyMatrixValue'])
+      elif data['method'] == METHOD['SUPER_ENKRIPSI']:
+        data['inputText'] = file_bytes
       else:
         file_text = file_bytes.decode('utf-8')
         data['inputText'] = clean_text(file_text)
@@ -34,6 +37,10 @@ def encrypt():
       data['inputText'] = clean_text(data['inputText'])
       if data['method'] == METHOD['EXTENDED_VIGNERE_CIPHER']:
         data['inputText'] = data['inputText'].encode('utf-8')
+        file_name = 'output.txt'
+      elif data['method'] == METHOD['SUPER_ENKRIPSI']:
+        data['inputText'] = data['inputText'].encode('utf-8')
+        file_name = 'output.txt'
       
     # Output
     if data['method'] == METHOD['VIGNERE_CIPHER']:
@@ -47,12 +54,8 @@ def encrypt():
     elif data['method'] == METHOD['EXTENDED_VIGNERE_CIPHER']:
       data['key'] = clean_text(data['key'])
       result = encrypt_bytes_extended_vigenere(data['inputText'], data['key'])
-      if (data['inputOption'] == INPUT_OPTION['TEXT']):
-        with open(f'output/[ENCRYPTED] output.txt', 'wb') as file:
-          file.write(result)
-      else:
-        with open(f'output/{file_name}', 'wb') as file:
-          file.write(result)
+      with open(f'output/{file_name}', 'wb') as file:
+        file.write(result)
       data.pop('inputText', None)
       data['result'] = 'File has been encrypted'
     elif data['method'] == METHOD['PLAYFAIR_CIPHER']:
@@ -69,6 +72,18 @@ def encrypt():
       data['keyMatrixValue'] = convert_matrix_to_int(data['keyMatrixValue'])
       data['inputText'] = add_z_to_text(data['inputText'], data['keyMatrixSize'])
       data['result'] = encrypt_hill(data['inputText'], data['keyMatrixValue'])
+    elif data['method'] == METHOD['SUPER_ENKRIPSI']:
+      data['keyVignere'] = clean_text(data['keyVignere'])
+      data['keyTransposition'] = int(data['keyTransposition'])
+      data_bytes = encrypt_bytes_extended_vigenere(data['inputText'], data['keyVignere'])
+      if not is_valid_key_transposition(data_bytes, data['keyTransposition']):
+        data['error'] = f"Key Transposition is not valid for {len(data_bytes)} input bytes"
+      else:
+        result = encrypt_bytes_super_encryption(data['inputText'], data['keyVignere'], data['keyTransposition'])
+        with open(f'output/[ENCRYPTED] {file_name}', 'wb') as file:
+          file.write(result)
+        data['result'] = 'File has been encrypted'
+      data.pop('inputText', None)
     
     return jsonify(data)
   except Exception as e:
@@ -87,6 +102,8 @@ def decrypt():
         data['inputText'] = file_bytes
       elif data['method'] == METHOD['HILL_CIPHER']:
         data['keyMatrixValue'] = json.loads(data['keyMatrixValue'])
+      elif data['method'] == METHOD['SUPER_ENKRIPSI']:
+        data['inputText'] = file_bytes
       else:
         file_text = file_bytes.decode('utf-8')
         data['inputText'] = clean_text(file_text)
@@ -95,6 +112,10 @@ def decrypt():
       data['inputText'] = clean_text(data['inputText'])
       if data['method'] == METHOD['EXTENDED_VIGNERE_CIPHER']:
         data['inputText'] = data['inputText'].encode('utf-8')
+        file_name = 'output.txt'
+      elif data['method'] == METHOD['SUPER_ENKRIPSI']:
+        data['inputText'] = data['inputText'].encode('utf-8')
+        file_name = 'output.txt'
       
     # Output
     if data['method'] == METHOD['VIGNERE_CIPHER']:
@@ -108,12 +129,8 @@ def decrypt():
     elif data['method'] == METHOD['EXTENDED_VIGNERE_CIPHER']:
       data['key'] = clean_text(data['key'])
       result = decrypt_bytes_extended_vigenere(data['inputText'], data['key'])
-      if (data['inputOption'] == INPUT_OPTION['TEXT']):
-        with open(f'output/output.txt', 'wb') as file:
-          file.write(result)
-      else:
-        with open(f'output/{file_name}', 'wb') as file:
-          file.write(result)
+      with open(f'output/{file_name}', 'wb') as file:
+        file.write(result)
       data.pop('inputText', None)
       data['result'] = 'File has been decrypted'
     elif data['method'] == METHOD['PLAYFAIR_CIPHER']:
@@ -133,6 +150,18 @@ def decrypt():
       else:
         data['inputText'] = add_z_to_text(data['inputText'], data['keyMatrixSize'])
         data['result'] = decrypt_hill(data['inputText'], data['keyMatrixValue'])
+    elif data['method'] == METHOD['SUPER_ENKRIPSI']:
+      data['keyVignere'] = clean_text(data['keyVignere'])
+      data['keyTransposition'] = int(data['keyTransposition'])
+      data_bytes = decrypt_bytes_extended_vigenere(data['inputText'], data['keyVignere'])
+      if not is_valid_key_transposition(data_bytes, data['keyTransposition']):
+        data['error'] = f"Key Transposition is not valid for {len(data_bytes)} input bytes"
+      else:
+        result = decrypt_bytes_super_encryption(data['inputText'], data['keyVignere'], data['keyTransposition'])
+        with open(f'output/[DECRYPTED] {file_name}', 'wb') as file:
+          file.write(result)
+        data['result'] = 'File has been encrypted'
+      data.pop('inputText', None)
     
     return jsonify(data)
   except Exception as e:

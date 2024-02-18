@@ -23,6 +23,8 @@ export const Home = () => {
   const [key, setKey] = useState<string>('');
   const [keyM, setKeyM] = useState<string>('');
   const [keyB, setKeyB] = useState<string>('');
+  const [keyVignere, setKeyVignere] = useState<string>('');
+  const [keyTransposition, setKeyTransposition] = useState<string>('');
   const [keyMatrixSize, setKeyMatrixSize] = useState<string>('');
   const [keyMatrixValue, setKeyMatrixValue] = useState<string[][]>([]);
   const [errorText, setErrorText] = useState<string>('');
@@ -101,6 +103,32 @@ export const Home = () => {
           formData.append('method', method);
           formData.append('keyMatrixSize', keyMatrixSize);
           formData.append('keyMatrixValue', JSON.stringify(keyMatrixValue));
+
+          response = await axios.post(`${import.meta.env.VITE_API_URL}/encrypt`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+        } else if (method === METHOD.SUPER_ENKRIPSI) {
+          if (keyVignere === '') {
+            setErrorText('Key Vignere cannot be empty');
+            return;
+          }
+
+          if (keyTransposition === '') {
+            setErrorText('Key Transposition cannot be empty');
+            return;
+          } else if (isNaN(parseInt(keyTransposition))) {
+            setErrorText('Key Transposition must be an integer');
+            return;
+          }
+
+          const formData = new FormData();
+          formData.append('inputOption', inputOption);
+          formData.append('inputFile', inputFile);
+          formData.append('method', method);
+          formData.append('keyVignere', keyVignere);
+          formData.append('keyTransposition', keyTransposition);
 
           response = await axios.post(`${import.meta.env.VITE_API_URL}/encrypt`, formData, {
             headers: {
@@ -191,6 +219,27 @@ export const Home = () => {
             method,
             keyMatrixSize,
             keyMatrixValue,
+          });
+        } else if (method === METHOD.SUPER_ENKRIPSI) {
+          if (keyVignere === '') {
+            setErrorText('Key Vignere cannot be empty');
+            return;
+          }
+
+          if (keyTransposition === '') {
+            setErrorText('Key Transposition cannot be empty');
+            return;
+          } else if (isNaN(parseInt(keyTransposition))) {
+            setErrorText('Key Transposition must be an integer');
+            return;
+          }
+
+          response = await axios.post(`${import.meta.env.VITE_API_URL}/encrypt`, {
+            inputOption,
+            inputText,
+            method,
+            keyVignere,
+            keyTransposition,
           });
         } else {
           if (key === '') {
@@ -297,6 +346,32 @@ export const Home = () => {
               'Content-Type': 'multipart/form-data',
             },
           });
+        } else if (method === METHOD.SUPER_ENKRIPSI) {
+          if (keyVignere === '') {
+            setErrorText('Key Vignere cannot be empty');
+            return;
+          }
+
+          if (keyTransposition === '') {
+            setErrorText('Key Transposition cannot be empty');
+            return;
+          } else if (isNaN(parseInt(keyTransposition))) {
+            setErrorText('Key Transposition must be an integer');
+            return;
+          }
+
+          const formData = new FormData();
+          formData.append('inputOption', inputOption);
+          formData.append('inputFile', inputFile);
+          formData.append('method', method);
+          formData.append('keyVignere', keyVignere);
+          formData.append('keyTransposition', keyTransposition);
+
+          response = await axios.post(`${import.meta.env.VITE_API_URL}/decrypt`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
         } else {
           if (key === '') {
             setErrorText('Key cannot be empty');
@@ -382,6 +457,27 @@ export const Home = () => {
             keyMatrixSize,
             keyMatrixValue,
           });
+        } else if (method === METHOD.SUPER_ENKRIPSI) {
+          if (keyVignere === '') {
+            setErrorText('Key Vignere cannot be empty');
+            return;
+          }
+
+          if (keyTransposition === '') {
+            setErrorText('Key Transposition cannot be empty');
+            return;
+          } else if (isNaN(parseInt(keyTransposition))) {
+            setErrorText('Key Transposition must be an integer');
+            return;
+          }
+
+          response = await axios.post(`${import.meta.env.VITE_API_URL}/decrypt`, {
+            inputOption,
+            inputText,
+            method,
+            keyVignere,
+            keyTransposition,
+          });
         } else {
           if (key === '') {
             setErrorText('Key cannot be empty');
@@ -454,7 +550,7 @@ export const Home = () => {
         </FormControl>
         <FormControl mt="2">
           <FormLabel>Key</FormLabel>
-          {method !== METHOD.AFFINE_CIPHER && method !== METHOD.HILL_CIPHER && <Textarea borderWidth="1px" borderColor="black" placeholder="Input key" size="sm" rows={1} onChange={e => setKey(e.target.value)} />}
+          {method !== METHOD.AFFINE_CIPHER && method !== METHOD.HILL_CIPHER && method !== METHOD.SUPER_ENKRIPSI && <Textarea borderWidth="1px" borderColor="black" placeholder="Input key" size="sm" rows={1} onChange={e => setKey(e.target.value)} />}
           {method === METHOD.AFFINE_CIPHER && (
             <>
               <Textarea borderWidth="1px" borderColor="black" placeholder="Input key m" size="sm" rows={1} onChange={e => setKeyM(e.target.value)} />
@@ -484,6 +580,12 @@ export const Home = () => {
                   </Box>
                 ))}
               </Box>
+            </>
+          )}
+          {method === METHOD.SUPER_ENKRIPSI && (
+            <>
+              <Textarea borderWidth="1px" borderColor="black" placeholder="Input key vignere" size="sm" rows={1} onChange={e => setKeyVignere(e.target.value)} />
+              <Textarea borderWidth="1px" borderColor="black" placeholder="Input key transposition" size="sm" rows={1} onChange={e => setKeyTransposition(e.target.value)} />
             </>
           )}
         </FormControl>
