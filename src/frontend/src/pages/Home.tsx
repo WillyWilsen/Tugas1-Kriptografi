@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   FormControl,
   FormLabel,
@@ -17,7 +17,6 @@ import axios, { AxiosError } from 'axios';
 export const Home = () => {
   const [inputOption, setInputOption] = useState<string>(INPUT_OPTION.TEXT);
   const [inputText, setInputText] = useState<string>('');
-  const [inputTextBase64, setInputTextBase64] = useState<string>('');
   const [inputFile, setInputFile] = useState<File | null>(null);
   const [method, setMethod] = useState<string>(METHOD.VIGNERE_CIPHER);
   const [key, setKey] = useState<string>('');
@@ -27,15 +26,6 @@ export const Home = () => {
   const [keyMatrixValue, setKeyMatrixValue] = useState<string[][]>([]);
   const [errorText, setErrorText] = useState<string>('');
   const [result, setResult] = useState<string>('');
-  const [resultBase64, setResultBase64] = useState<string>('');
-
-  useEffect(() => {
-    setInputTextBase64(btoa(inputText));
-  }, [inputText]);
-
-  useEffect(() => {
-    setResultBase64(btoa(result));
-  }, [result]);
 
   const encrypt = async () => {
     setErrorText('');
@@ -436,10 +426,6 @@ export const Home = () => {
           <FormLabel>Text</FormLabel>
           <Textarea borderWidth="1px" borderColor="black" placeholder="Input plain text" size="sm" rows={5} onChange={e => setInputText(e.target.value)} />
         </FormControl>}
-        {inputOption === INPUT_OPTION.TEXT && <FormControl mt="2">
-          <FormLabel>Base64 Text</FormLabel>
-          <Textarea borderWidth="1px" borderColor="gray" placeholder="Base64 plain text" color="gray" size="sm" rows={5} value={inputTextBase64} readOnly />
-        </FormControl>}
         {inputOption === INPUT_OPTION.FILE && <FormControl mt="2">
           <FormLabel>File</FormLabel>
           <Input type="file" borderWidth="1px" borderColor="black" size="sm" onChange={e => setInputFile(e.target.files?.length ? (e.target.files?.length > 0 ? e.target.files[0] : null) : null)} />
@@ -505,10 +491,6 @@ export const Home = () => {
         <FormControl mt="2">
           <FormLabel>Result</FormLabel>
           <Textarea borderWidth="1px" borderColor="gray" placeholder="Result" color="gray" size="sm" rows={5} value={result} readOnly />
-        </FormControl>
-        <FormControl mt="2">
-          <FormLabel>Base64 Result</FormLabel>
-          <Textarea borderWidth="1px" borderColor="gray" placeholder="Base64 result" color="gray" size="sm" rows={5} value={resultBase64} readOnly />
         </FormControl>
         <FormControl mt="2">
           <Button colorScheme="green" size="md" mx="1" onClick={downloadResult}>Download Result</Button>
