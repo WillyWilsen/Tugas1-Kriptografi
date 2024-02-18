@@ -1,13 +1,13 @@
-from ..EXTENDED_VIGNERE_CIPHER.service import encrypt_bytes_extended_vigenere, decrypt_bytes_extended_vigenere
+from ..EXTENDED_VIGENERE_CIPHER.service import encrypt_bytes_extended_vigenere, decrypt_bytes_extended_vigenere
 
 # Validate key for Transposition Cipher
 def is_valid_key_transposition(data_bytes, keyTransposition):
   return keyTransposition > 0 and len(data_bytes) % keyTransposition == 0
 
 # Encrypt bytes using Extended Vigenere Cipher and Transposition Cipher
-def encrypt_bytes_super_encryption(data_bytes, keyVignere, keyTransposition):
+def encrypt_bytes_super_encryption(data_bytes, keyVigenere, keyTransposition):
   # Encrypt using Extended Vigenere Cipher
-  encrypted_bytes = encrypt_bytes_extended_vigenere(data_bytes, keyVignere)
+  encrypted_bytes = encrypt_bytes_extended_vigenere(data_bytes, keyVigenere)
 
   # Split bytes with length keyTransposition
   rows = []
@@ -23,7 +23,7 @@ def encrypt_bytes_super_encryption(data_bytes, keyVignere, keyTransposition):
   return combined_bytes
 
 # Decrypt bytes using Extended Vigenere Cipher and Transposition Cipher
-def decrypt_bytes_super_encryption(data_bytes, keyVignere, keyTransposition):
+def decrypt_bytes_super_encryption(data_bytes, keyVigenere, keyTransposition):
   # Split bytes with length len(data_bytes) // keyTransposition
   rows = []
   for i in range(0, len(data_bytes), len(data_bytes) // keyTransposition):
@@ -36,6 +36,6 @@ def decrypt_bytes_super_encryption(data_bytes, keyVignere, keyTransposition):
       combined_bytes.append(row[i])
 
   # Decrypt using Extended Vigenere Cipher
-  decrypted_bytes = decrypt_bytes_extended_vigenere(combined_bytes, keyVignere)
+  decrypted_bytes = decrypt_bytes_extended_vigenere(combined_bytes, keyVigenere)
 
   return decrypted_bytes

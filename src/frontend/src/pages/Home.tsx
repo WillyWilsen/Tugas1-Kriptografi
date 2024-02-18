@@ -19,11 +19,11 @@ export const Home = () => {
   const [inputOption, setInputOption] = useState<string>(INPUT_OPTION.TEXT);
   const [inputText, setInputText] = useState<string>('');
   const [inputFile, setInputFile] = useState<File | null>(null);
-  const [method, setMethod] = useState<string>(METHOD.VIGNERE_CIPHER);
+  const [method, setMethod] = useState<string>(METHOD.VIGENERE_CIPHER);
   const [key, setKey] = useState<string>('');
   const [keyM, setKeyM] = useState<string>('');
   const [keyB, setKeyB] = useState<string>('');
-  const [keyVignere, setKeyVignere] = useState<string>('');
+  const [keyVigenere, setKeyVigenere] = useState<string>('');
   const [keyTransposition, setKeyTransposition] = useState<string>('');
   const [keyMatrixSize, setKeyMatrixSize] = useState<string>('');
   const [keyMatrixValue, setKeyMatrixValue] = useState<string[][]>([]);
@@ -110,8 +110,8 @@ export const Home = () => {
             },
           });
         } else if (method === METHOD.SUPER_ENKRIPSI) {
-          if (keyVignere === '') {
-            setErrorText('Key Vignere cannot be empty');
+          if (keyVigenere === '') {
+            setErrorText('Key Vigenere cannot be empty');
             return;
           }
 
@@ -127,7 +127,7 @@ export const Home = () => {
           formData.append('inputOption', inputOption);
           formData.append('inputFile', inputFile);
           formData.append('method', method);
-          formData.append('keyVignere', keyVignere);
+          formData.append('keyVigenere', keyVigenere);
           formData.append('keyTransposition', keyTransposition);
 
           response = await axios.post(`${import.meta.env.VITE_API_URL}/encrypt`, formData, {
@@ -221,8 +221,8 @@ export const Home = () => {
             keyMatrixValue,
           });
         } else if (method === METHOD.SUPER_ENKRIPSI) {
-          if (keyVignere === '') {
-            setErrorText('Key Vignere cannot be empty');
+          if (keyVigenere === '') {
+            setErrorText('Key Vigenere cannot be empty');
             return;
           }
 
@@ -238,7 +238,7 @@ export const Home = () => {
             inputOption,
             inputText,
             method,
-            keyVignere,
+            keyVigenere,
             keyTransposition,
           });
         } else {
@@ -347,8 +347,8 @@ export const Home = () => {
             },
           });
         } else if (method === METHOD.SUPER_ENKRIPSI) {
-          if (keyVignere === '') {
-            setErrorText('Key Vignere cannot be empty');
+          if (keyVigenere === '') {
+            setErrorText('Key Vigenere cannot be empty');
             return;
           }
 
@@ -364,7 +364,7 @@ export const Home = () => {
           formData.append('inputOption', inputOption);
           formData.append('inputFile', inputFile);
           formData.append('method', method);
-          formData.append('keyVignere', keyVignere);
+          formData.append('keyVigenere', keyVigenere);
           formData.append('keyTransposition', keyTransposition);
 
           response = await axios.post(`${import.meta.env.VITE_API_URL}/decrypt`, formData, {
@@ -458,8 +458,8 @@ export const Home = () => {
             keyMatrixValue,
           });
         } else if (method === METHOD.SUPER_ENKRIPSI) {
-          if (keyVignere === '') {
-            setErrorText('Key Vignere cannot be empty');
+          if (keyVigenere === '') {
+            setErrorText('Key Vigenere cannot be empty');
             return;
           }
 
@@ -475,7 +475,7 @@ export const Home = () => {
             inputOption,
             inputText,
             method,
-            keyVignere,
+            keyVigenere,
             keyTransposition,
           });
         } else {
@@ -538,9 +538,9 @@ export const Home = () => {
         <FormControl mt="2">
           <FormLabel>Method</FormLabel>
           <Select borderWidth="1px" borderColor="black" placeholder='Select input option' defaultValue={method} onChange={e => setMethod(e.target.value)}>
-            <option value={METHOD.VIGNERE_CIPHER}>{METHOD.VIGNERE_CIPHER}</option>
-            <option value={METHOD.AUTO_KEY_VIGNERE_CIPHER}>{METHOD.AUTO_KEY_VIGNERE_CIPHER}</option>
-            <option value={METHOD.EXTENDED_VIGNERE_CIPHER}>{METHOD.EXTENDED_VIGNERE_CIPHER}</option>
+            <option value={METHOD.VIGENERE_CIPHER}>{METHOD.VIGENERE_CIPHER}</option>
+            <option value={METHOD.AUTO_KEY_VIGENERE_CIPHER}>{METHOD.AUTO_KEY_VIGENERE_CIPHER}</option>
+            <option value={METHOD.EXTENDED_VIGENERE_CIPHER}>{METHOD.EXTENDED_VIGENERE_CIPHER}</option>
             <option value={METHOD.PLAYFAIR_CIPHER}>{METHOD.PLAYFAIR_CIPHER}</option>
             <option value={METHOD.AFFINE_CIPHER}>{METHOD.AFFINE_CIPHER}</option>
             <option value={METHOD.HILL_CIPHER}>{METHOD.HILL_CIPHER}</option>
@@ -584,7 +584,7 @@ export const Home = () => {
           )}
           {method === METHOD.SUPER_ENKRIPSI && (
             <>
-              <Textarea borderWidth="1px" borderColor="black" placeholder="Input key vignere" size="sm" rows={1} onChange={e => setKeyVignere(e.target.value)} />
+              <Textarea borderWidth="1px" borderColor="black" placeholder="Input key vigenere" size="sm" rows={1} onChange={e => setKeyVigenere(e.target.value)} />
               <Textarea borderWidth="1px" borderColor="black" placeholder="Input key transposition" size="sm" rows={1} onChange={e => setKeyTransposition(e.target.value)} />
             </>
           )}
