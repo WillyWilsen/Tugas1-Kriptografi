@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   FormControl,
   FormLabel,
@@ -17,6 +17,8 @@ import axios, { AxiosError } from 'axios';
 export const Home = () => {
   const [inputOption, setInputOption] = useState<string>(INPUT_OPTION.TEXT);
   const [inputText, setInputText] = useState<string>('');
+  const [inputTextBase64, setInputTextBase64] = useState<string>('');
+  const [inputFile, setInputFile] = useState<File | null>(null);
   const [method, setMethod] = useState<string>(METHOD.VIGNERE_CIPHER);
   const [key, setKey] = useState<string>('');
   const [keyM, setKeyM] = useState<string>('');
@@ -25,14 +27,117 @@ export const Home = () => {
   const [keyMatrixValue, setKeyMatrixValue] = useState<string[][]>([]);
   const [errorText, setErrorText] = useState<string>('');
   const [result, setResult] = useState<string>('');
+  const [resultBase64, setResultBase64] = useState<string>('');
+
+  useEffect(() => {
+    setInputTextBase64(btoa(inputText));
+  }, [inputText]);
+
+  useEffect(() => {
+    setResultBase64(btoa(result));
+  }, [result]);
 
   const encrypt = async () => {
     setErrorText('');
+    setResult('');
     let response;
 
     try {
       if (inputOption === INPUT_OPTION.FILE) {
-        return;
+        if (!inputFile) {
+          setErrorText('Input file cannot be empty');
+          return;
+        }
+
+        if (method === METHOD.AFFINE_CIPHER) {
+          if (keyM === '') {
+            setErrorText('Key M cannot be empty');
+            return;
+          } else if (isNaN(parseInt(keyM))) {
+            setErrorText('Key M must be an integer');
+            return;
+          } else if (parseInt(keyM) % 2 === 0 || parseInt(keyM) % 13 === 0) {
+            setErrorText('Key M must be relative prime with 26');
+            return;
+          }
+
+          if (keyB === '') {
+            setErrorText('Key B cannot be empty');
+            return;
+          } else if (isNaN(parseInt(keyB))) {
+            setErrorText('Key B must be an integer');
+            return;
+          }
+
+          const formData = new FormData();
+          formData.append('inputOption', inputOption);
+          formData.append('inputFile', inputFile);
+          formData.append('method', method);
+          formData.append('keyM', keyM);
+          formData.append('keyB', keyB);
+
+          response = await axios.post(`${import.meta.env.VITE_API_URL}/encrypt`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+        } else if (method === METHOD.HILL_CIPHER) {
+          if (keyMatrixSize === '') {
+            setErrorText('Key matrix size cannot be empty');
+            return;
+          } else if (isNaN(parseInt(keyMatrixSize))) {
+            setErrorText('Key matrix size must be an integer');
+            return;
+          }
+
+          for (let i = 0; i < parseInt(keyMatrixSize); i++) {
+            for (let j = 0; j < parseInt(keyMatrixSize); j++) {
+              if (keyMatrixValue[i][j] === '') {
+                setErrorText('Key matrix value cannot be empty');
+                return;
+              } else if (isNaN(parseInt(keyMatrixValue[i][j]))) {
+                setErrorText('Key matrix value must be an integer');
+                return;
+              }
+            }
+          }
+
+          const formData = new FormData();
+          formData.append('inputOption', inputOption);
+          formData.append('inputFile', inputFile);
+          formData.append('method', method);
+          formData.append('keyMatrixSize', keyMatrixSize);
+          formData.append('keyMatrixValue', JSON.stringify(keyMatrixValue));
+
+          response = await axios.post(`${import.meta.env.VITE_API_URL}/encrypt`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+        } else {
+          if (key === '') {
+            setErrorText('Key cannot be empty');
+            return;
+          }
+
+          const formData = new FormData();
+          formData.append('inputOption', inputOption);
+          formData.append('inputFile', inputFile);
+          formData.append('method', method);
+          formData.append('key', key);
+
+          response = await axios.post(`${import.meta.env.VITE_API_URL}/encrypt`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+        }
+
+        if (response.data.result) {
+          setResult(response.data.result);
+        } else {
+          setErrorText(response.data.error);
+        }
       } else if (inputOption === INPUT_OPTION.TEXT) {
         if (inputText === '') {
           setErrorText('Input text cannot be empty');
@@ -63,8 +168,8 @@ export const Home = () => {
             inputOption,
             inputText,
             method,
-            keyM: parseInt(keyM),
-            keyB: parseInt(keyB),
+            keyM,
+            keyB,
           });
         } else if (method === METHOD.HILL_CIPHER) {
           if (keyMatrixSize === '') {
@@ -91,7 +196,7 @@ export const Home = () => {
             inputOption,
             inputText,
             method,
-            keyMatrixSize: parseInt(keyMatrixSize),
+            keyMatrixSize,
             keyMatrixValue,
           });
         } else {
@@ -107,6 +212,7 @@ export const Home = () => {
             key,
           });
         }
+
         if (response.data.result) {
           setResult(response.data.result);
         } else {
@@ -124,7 +230,100 @@ export const Home = () => {
 
     try {
       if (inputOption === INPUT_OPTION.FILE) {
-        return;
+        if (!inputFile) {
+          setErrorText('Input file cannot be empty');
+          return;
+        }
+
+        if (method === METHOD.AFFINE_CIPHER) {
+          if (keyM === '') {
+            setErrorText('Key M cannot be empty');
+            return;
+          } else if (isNaN(parseInt(keyM))) {
+            setErrorText('Key M must be an integer');
+            return;
+          } else if (parseInt(keyM) % 2 === 0 || parseInt(keyM) % 13 === 0) {
+            setErrorText('Key M must be relative prime with 26');
+            return;
+          }
+
+          if (keyB === '') {
+            setErrorText('Key B cannot be empty');
+            return;
+          } else if (isNaN(parseInt(keyB))) {
+            setErrorText('Key B must be an integer');
+            return;
+          }
+
+          const formData = new FormData();
+          formData.append('inputOption', inputOption);
+          formData.append('inputFile', inputFile);
+          formData.append('method', method);
+          formData.append('keyM', keyM);
+          formData.append('keyB', keyB);
+
+          response = await axios.post(`${import.meta.env.VITE_API_URL}/decrypt`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+        } else if (method === METHOD.HILL_CIPHER) {
+          if (keyMatrixSize === '') {
+            setErrorText('Key matrix size cannot be empty');
+            return;
+          } else if (isNaN(parseInt(keyMatrixSize))) {
+            setErrorText('Key matrix size must be an integer');
+            return;
+          }
+
+          for (let i = 0; i < parseInt(keyMatrixSize); i++) {
+            for (let j = 0; j < parseInt(keyMatrixSize); j++) {
+              if (keyMatrixValue[i][j] === '') {
+                setErrorText('Key matrix value cannot be empty');
+                return;
+              } else if (isNaN(parseInt(keyMatrixValue[i][j]))) {
+                setErrorText('Key matrix value must be an integer');
+                return;
+              }
+            }
+          }
+
+          const formData = new FormData();
+          formData.append('inputOption', inputOption);
+          formData.append('inputFile', inputFile);
+          formData.append('method', method);
+          formData.append('keyMatrixSize', keyMatrixSize);
+          formData.append('keyMatrixValue', JSON.stringify(keyMatrixValue));
+
+          response = await axios.post(`${import.meta.env.VITE_API_URL}/decrypt`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+        } else {
+          if (key === '') {
+            setErrorText('Key cannot be empty');
+            return;
+          }
+
+          const formData = new FormData();
+          formData.append('inputOption', inputOption);
+          formData.append('inputFile', inputFile);
+          formData.append('method', method);
+          formData.append('key', key);
+
+          response = await axios.post(`${import.meta.env.VITE_API_URL}/decrypt`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+        }
+
+        if (response.data.result) {
+          setResult(response.data.result);
+        } else {
+          setErrorText(response.data.error);
+        }
       } else if (inputOption === INPUT_OPTION.TEXT) {
         if (inputText === '') {
           setErrorText('Input text cannot be empty');
@@ -155,8 +354,8 @@ export const Home = () => {
             inputOption,
             inputText,
             method,
-            keyM: parseInt(keyM),
-            keyB: parseInt(keyB),
+            keyM,
+            keyB,
           });
         } else if (method === METHOD.HILL_CIPHER) {
           if (keyMatrixSize === '') {
@@ -183,7 +382,7 @@ export const Home = () => {
             inputOption,
             inputText,
             method,
-            keyMatrixSize: parseInt(keyMatrixSize),
+            keyMatrixSize,
             keyMatrixValue,
           });
         } else {
@@ -199,6 +398,7 @@ export const Home = () => {
             key,
           });
         }
+
         if (response.data.result) {
           setResult(response.data.result);
         } else {
@@ -208,6 +408,15 @@ export const Home = () => {
     } catch (e) {
       setErrorText((e as AxiosError).message);
     }
+  }
+
+  const downloadResult = () => {
+    const element = document.createElement('a');
+    const file = new Blob([result], { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = 'result.txt';
+    document.body.appendChild(element);
+    element.click();
   }
 
   return (
@@ -223,10 +432,18 @@ export const Home = () => {
             <option value={INPUT_OPTION.FILE}>{INPUT_OPTION.FILE}</option>
           </Select>
         </FormControl>
-        <FormControl mt="2">
+        {inputOption === INPUT_OPTION.TEXT && <FormControl mt="2">
           <FormLabel>Text</FormLabel>
           <Textarea borderWidth="1px" borderColor="black" placeholder="Input plain text" size="sm" rows={5} onChange={e => setInputText(e.target.value)} />
-        </FormControl>
+        </FormControl>}
+        {inputOption === INPUT_OPTION.TEXT && <FormControl mt="2">
+          <FormLabel>Base64 Text</FormLabel>
+          <Textarea borderWidth="1px" borderColor="gray" placeholder="Base64 plain text" color="gray" size="sm" rows={5} value={inputTextBase64} readOnly />
+        </FormControl>}
+        {inputOption === INPUT_OPTION.FILE && <FormControl mt="2">
+          <FormLabel>File</FormLabel>
+          <Input type="file" borderWidth="1px" borderColor="black" size="sm" onChange={e => setInputFile(e.target.files?.length ? (e.target.files?.length > 0 ? e.target.files[0] : null) : null)} />
+        </FormControl>}
         <FormControl mt="2">
           <FormLabel>Method</FormLabel>
           <Select borderWidth="1px" borderColor="black" placeholder='Select input option' defaultValue={method} onChange={e => setMethod(e.target.value)}>
@@ -287,7 +504,14 @@ export const Home = () => {
         </FormControl>
         <FormControl mt="2">
           <FormLabel>Result</FormLabel>
-          <Textarea borderWidth="1px" borderColor="black" placeholder="Result" value={result} size="sm" rows={5} readOnly />
+          <Textarea borderWidth="1px" borderColor="gray" placeholder="Result" color="gray" size="sm" rows={5} value={result} readOnly />
+        </FormControl>
+        <FormControl mt="2">
+          <FormLabel>Base64 Result</FormLabel>
+          <Textarea borderWidth="1px" borderColor="gray" placeholder="Base64 result" color="gray" size="sm" rows={5} value={resultBase64} readOnly />
+        </FormControl>
+        <FormControl mt="2">
+          <Button colorScheme="green" size="md" mx="1" onClick={downloadResult}>Download Result</Button>
         </FormControl>
       </Box>
     </>
