@@ -1,6 +1,6 @@
 # Tugas1-Kriptografi
 
-## Deskripsi singkat program
+### Deskripsi singkat program
 
 Program menggunakan React + Vite + Typescript untuk frontend dan Flask untuk backend yang dibuat untuk mengimplementasikan kriptografi pada mata kuliah IF4020 Kriptografi. Pengguna akan memberikan input berupa file atau pesan yang diketik, metode, dan key yang digunakan, lalu program akan mengeluarkan hasil enkripsi atau dekripsi pada layar.
 
@@ -25,6 +25,7 @@ Notes: Isi key VITE_API_URL pada .env untuk terhubung ke backend
 ### Backend
 
 ```
+> cd backend
 > pip install -r requirements.txt
 > python3 app.py
 ```
