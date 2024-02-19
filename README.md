@@ -10,6 +10,10 @@ Pengunduhan Python dapat dilakukan melalui situs berikut.
 
 https://www.python.org/downloads/
 
+Pengunduhan Ruby dapat dilakukan melalui situs berikut. (Opsional)
+
+https://rubyinstaller.org/downloads/
+
 ## Cara menggunakan program
 
 ### Frontend
@@ -22,12 +26,20 @@ https://www.python.org/downloads/
 ```
 Notes: Isi key VITE_API_URL pada .env untuk terhubung ke backend
 
-### Backend
+### Backend Flask
 
 ```
 > cd backend
 > pip install -r requirements.txt
 > python3 app.py
+```
+
+### Backend Rails (Opsional)
+
+```
+> cd backend_rails
+> bundle install
+> rails s
 ```
 
 ## Author
