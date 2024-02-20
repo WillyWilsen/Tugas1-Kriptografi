@@ -545,7 +545,6 @@ export const Home = () => {
             <option value={METHOD.AFFINE_CIPHER}>{METHOD.AFFINE_CIPHER}</option>
             <option value={METHOD.HILL_CIPHER}>{METHOD.HILL_CIPHER}</option>
             <option value={METHOD.SUPER_ENKRIPSI}>{METHOD.SUPER_ENKRIPSI}</option>
-            <option value={METHOD.ENIGMA_CIPHER}>{METHOD.ENIGMA_CIPHER}</option>
           </Select>
         </FormControl>
         <FormControl mt="2">

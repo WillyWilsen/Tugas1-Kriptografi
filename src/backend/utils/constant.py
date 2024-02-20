@@ -11,5 +11,4 @@ METHOD = {
   'AFFINE_CIPHER': 'Affine Cipher',
   'HILL_CIPHER': 'Hill Cipher',
   'SUPER_ENKRIPSI': 'Super Enkripsi',
-  'ENIGMA_CIPHER': 'Enigma Cipher',
 }
